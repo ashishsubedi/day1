@@ -24,7 +24,7 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-
+    frame = cv2.flip(frame, 1)
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(cv2.resize(
         frame, (300, 300)), 1.0, (300, 300), (104.0, 177.0, 123.0))
@@ -45,17 +45,14 @@ while True:
                 (startX, startY, endX, endY) = box.astype('int')
                 text = "{:.2f}%".format(confidence * 100)
                 y = startY - 10 if startY - 10 > 10 else startY + 10
-                print("BOUNDS: ", startX, endX, startY, endY)
+
                 faceROI = frame[startY:endY, startX:endX]
                 width, height = endX-startX, endY-startY
-                print(faceROI.shape, height, width)
+                newImg = np.random.randint(
+                    0, 255, (faceROI.shape[0], faceROI.shape[1], 1), dtype=np.uint8)
                 if(width > 0 and height > 0):
-                    faceROI = cv2.GaussianBlur(faceROI, (11, 11), 5)
-                    faceROI = cv2.resize(
-                        faceROI, (6, 6), interpolation=cv2.INTER_LINEAR)
-                    faceROI = cv2.resize(
-                        faceROI, (width, height), interpolation=cv2.INTER_NEAREST)
-                    print("FACE ROI", faceROI.shape)
+                    faceROI = newImg
+
                     frame[startY:endY, startX:endX] = faceROI
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
                               (0, 0, 255), 2)
